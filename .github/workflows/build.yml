@@ -1,0 +1,30 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make zip kpartx qemu-user-static unzip
+      - name: Build image and create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          make image
+          zip_file=$(ls pwnagotchi-raspios-lite-*.zip)
+          echo "Uploading $zip_file to release"
+          curl \
+            -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Content-Type: application/zip" \
+            --data-binary "@$zip_file" \
+            "https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/${GITHUB_SHA}/assets?name=$zip_file"
