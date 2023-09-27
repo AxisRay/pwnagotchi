@@ -18,14 +18,16 @@ jobs:
           packages: make zip kpartx qemu-user-static unzip
           version: 1.0
 
+      - name: Cache packer_cache
+        uses: 'actions/cache@v3'
+        with:
+          path: builder/packer_cache
+          key: packer_cache
+  
       - name: Build image
-        run: |
-          make image
+        run: make image
            
-      - name: upload 
+      - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           path: "pwnagotchi-raspios-lite-*.zip"
-
-
-          
